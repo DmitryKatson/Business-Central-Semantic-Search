@@ -38,6 +38,7 @@ page 80101 "GPT Embeddings"
     {
         area(Promoted)
         {
+            actionref(ClassicSearch_Promoted; ClassicSearch) { }
             actionref(Search_Promoted; Search) { }
             actionref(Generate_Promoted; Generate) { }
             actionref(Vectors_Promoted; Vectors) { }
