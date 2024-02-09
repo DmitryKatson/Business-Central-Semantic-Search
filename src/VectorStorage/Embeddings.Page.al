@@ -45,10 +45,19 @@ page 80101 "GPT Embeddings"
         }
         area(Processing)
         {
+            action(ClassicSearch)
+            {
+                ApplicationArea = All;
+                Image = Find;
+                Caption = 'Classic Search';
+
+                RunObject = page "Data Search";
+            }
             action(Search)
             {
                 ApplicationArea = All;
                 Image = Sparkle;
+                Caption = 'Semantic Search';
 
                 RunObject = page "GPT Semantic Search";
             }
