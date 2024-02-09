@@ -27,21 +27,19 @@ page 80104 "GPT Semantic Search Results"
         }
     }
 
-    trigger OnOpenPage()
-    begin
-        Rec.SetFilter("Cosine Similarity", StrSubstNo('>=%1', 0.8));
-    end;
-
-
     procedure Load(var SemanticSearchResult: Record "GPT Semantic Search Result")
     begin
+        Rec.DeleteAll();
+
         SemanticSearchResult.Reset();
+        SemanticSearchResult.SetFilter("Cosine Similarity", StrSubstNo('>=%1', 0.8));
         if SemanticSearchResult.FindSet() then
             repeat
                 Rec := SemanticSearchResult;
                 Rec.Insert();
             until SemanticSearchResult.Next() = 0;
 
-        CurrPage.Update();
+
+        CurrPage.Update(false);
     end;
 }
