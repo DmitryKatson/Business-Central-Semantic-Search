@@ -14,6 +14,10 @@ table 80100 "GPT Embedding"
         {
 
         }
+        field(12; Vector; Text[100])
+        {
+
+        }
     }
 
     keys

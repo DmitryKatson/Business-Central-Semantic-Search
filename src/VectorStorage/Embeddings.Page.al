@@ -26,17 +26,29 @@ page 80101 "GPT Embeddings"
                 {
                     ApplicationArea = All;
                 }
+                field(Vector; Rec.Vector)
+                {
+                    ApplicationArea = All;
+                }
             }
         }
     }
 
     actions
     {
+        area(Promoted)
+        {
+            actionref(Generate_Promoted; Generate) { }
+            actionref(Vectors_Promoted; Vectors) { }
+            actionref(Setup_Promoted; Setup) { }
+        }
         area(Processing)
         {
             action(Generate)
             {
                 ApplicationArea = All;
+                Image = SuggestNumber;
+
                 trigger OnAction()
                 var
                     EmbeddingsImpl: Codeunit "GPT Embedding Impl.";
@@ -49,12 +61,14 @@ page 80101 "GPT Embeddings"
         {
             action(Vectors)
             {
+                Image = NumberGroup;
                 RunObject = page "GPT Embedding Vectors";
                 RunPageLink = Id = field(Id);
                 ApplicationArea = All;
             }
             action(Setup)
             {
+                Image = NumberSetup;
                 RunObject = page "GPT Semantic Search Setup";
                 ApplicationArea = All;
             }
