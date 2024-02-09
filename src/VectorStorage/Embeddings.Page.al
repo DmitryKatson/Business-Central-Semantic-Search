@@ -38,12 +38,20 @@ page 80101 "GPT Embeddings"
     {
         area(Promoted)
         {
+            actionref(Search_Promoted; Search) { }
             actionref(Generate_Promoted; Generate) { }
             actionref(Vectors_Promoted; Vectors) { }
             actionref(Setup_Promoted; Setup) { }
         }
         area(Processing)
         {
+            action(Search)
+            {
+                ApplicationArea = All;
+                Image = Sparkle;
+
+                RunObject = page "GPT Semantic Search";
+            }
             action(Generate)
             {
                 ApplicationArea = All;
