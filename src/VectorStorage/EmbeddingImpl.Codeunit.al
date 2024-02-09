@@ -69,18 +69,6 @@ codeunit 80100 "GPT Embedding Impl."
         Result := EmbeddingToken.AsArray();
     end;
 
-
-    local procedure ConvertJsonArrayToListOfDecimals(EmbeddingArray: JsonArray) Result: List of [Decimal]
-    var
-        i: Integer;
-        EmbeddingValue: JsonToken;
-    begin
-        for i := 0 to EmbeddingArray.Count() - 1 do begin
-            EmbeddingArray.Get(i, EmbeddingValue);
-            Result.Add(EmbeddingValue.AsValue().AsDecimal());
-        end;
-    end;
-
     procedure InsertToEmbeddingVector(Id: integer; VectorJArray: JsonArray)
     var
         i: integer;
@@ -97,6 +85,17 @@ codeunit 80100 "GPT Embedding Impl."
             EmbeddingVector.VectorId := i;
             EmbeddingVector.VectorValue := Value;
             EmbeddingVector.Insert();
+        end;
+    end;
+
+    procedure ConvertJsonArrayToListOfDecimals(EmbeddingArray: JsonArray) Result: List of [Decimal]
+    var
+        i: Integer;
+        EmbeddingValue: JsonToken;
+    begin
+        for i := 0 to EmbeddingArray.Count() - 1 do begin
+            EmbeddingArray.Get(i, EmbeddingValue);
+            Result.Add(EmbeddingValue.AsValue().AsDecimal());
         end;
     end;
 

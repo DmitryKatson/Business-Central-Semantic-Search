@@ -5,6 +5,7 @@ table 80103 "GPT Semantic Search Result"
     fields
     {
         field(1; Id; Integer) { }
+        field(2; "Cosine Similarity"; Decimal) { }
         field(10; "RecordId"; RecordId) { }
         field(11; Payload; Text[2048]) { }
     }
@@ -14,6 +15,10 @@ table 80103 "GPT Semantic Search Result"
         key(PK; Id)
         {
             Clustered = true;
+        }
+        key(SK; "Cosine Similarity")
+        {
+
         }
     }
 }

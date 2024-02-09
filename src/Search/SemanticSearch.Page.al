@@ -53,7 +53,7 @@ page 80103 "GPT Semantic Search"
         SemanticSearchImpl: Codeunit "GPT Semantic Search Impl.";
         SemanticSearchResult: Record "GPT Semantic Search Result";
     begin
-        SemanticSearchImpl.Search(SemanticSearchResult, SearchText);
+        SemanticSearchImpl.SemanticSearch(SemanticSearchResult, SearchText);
         CurrPage.SemanticSearchResults.Page.Load(SemanticSearchResult);
     end;
 
