@@ -18,6 +18,10 @@ page 80101 "GPT Embeddings"
                 {
                     ApplicationArea = All;
                 }
+                field("Table No."; Rec."Table No.")
+                {
+                    ApplicationArea = All;
+                }
                 field("RecordId"; Rec."RecordId")
                 {
                     ApplicationArea = All;
@@ -71,7 +75,7 @@ page 80101 "GPT Embeddings"
                 var
                     EmbeddingsImpl: Codeunit "GPT Embedding Impl.";
                 begin
-                    EmbeddingsImpl.GenerateItemEmbeddings();
+                    EmbeddingsImpl.GenerateEmbeddings();
                 end;
             }
         }

@@ -9,9 +9,11 @@ codeunit 80100 "GPT Embedding Impl."
         EmbeddingVector.DeleteAll();
     end;
 
-    procedure GenerateItemEmbeddings()
+    procedure GenerateEmbeddings()
     var
-        Item: Record Item;
+        DataSearchSetupTable: Record "Data Search Setup (Table)";
+        RoleCenterID: Integer;
+        Payload: text;
         Embedding: Record "GPT Embedding";
         i: Integer;
         VectorJArray: JsonArray;
@@ -19,21 +21,63 @@ codeunit 80100 "GPT Embedding Impl."
     begin
         Embedding.DeleteAll(true);
 
-        if Item.FindSet() then
+        RoleCenterID := DataSearchSetupTable.GetRoleCenterID(); //TODO: implement without role center dependency
+        DataSearchSetupTable.Setrange("Role Center ID", RoleCenterID);
+
+        if DataSearchSetupTable.FindSet() then
             repeat
-                VectorJArray := GetAzureOpenAIEmbeddings(Item.Description);
-                VectorJArray.WriteTo(VectorText);
+                EmbedTable(DataSearchSetupTable);
+            until DataSearchSetupTable.Next() = 0;
+    end;
 
-                i += 1;
-                Embedding.Init();
-                Embedding.Id := i;
-                Embedding.Payload := Item.Description;
-                Embedding.RecordId := Item.RecordId;
-                Embedding.Vector := CopyStr(VectorText, 1, MaxStrLen(Embedding.Vector));
-                Embedding.Insert(true);
+    local procedure EmbedTable(DataSearchSetupTable: Record "Data Search Setup (Table)")
+    var
+        Payload: TextBuilder;
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+    begin
+        RecRef.Open(DataSearchSetupTable."Table No.");
+        if RecRef.FindSet() then
+            repeat
+                Clear(Payload);
+                DataSearchSetupTable.CalcFields("Table Caption");
+                Payload.Append(DataSearchSetupTable."Table Caption");
+                Payload.AppendLine();
+                GenerateRecordPayload(Payload, RecRef);
+                EmbedRecord(Payload.ToText(), RecRef, DataSearchSetupTable);
+            until RecRef.Next() = 0;
+    end;
 
-                InsertToEmbeddingVector(Embedding.Id, VectorJArray);
-            until Item.Next() = 0;
+    local procedure GenerateRecordPayload(var Payload: TextBuilder; RecRef: RecordRef)
+    var
+        DataSearchSetupField: Record "Data Search Setup (Field)";
+        FldRef: FieldRef;
+    begin
+        DataSearchSetupField.SetRange("Table No.", RecRef.Number);
+        if DataSearchSetupField.FindSet() then
+            repeat
+                if RecRef.FieldExist(DataSearchSetupField."Field No.") then begin
+                    DataSearchSetupField.CalcFields("Field Caption");
+                    FldRef := RecRef.Field(DataSearchSetupField."Field No.");
+                    if Format(FldRef.Value) <> '' then begin
+                        Payload.AppendLine();
+                        Payload.Append(StrSubstNo('%1: %2', DataSearchSetupField."Field Caption", FldRef.Value));
+                    end;
+                end;
+            until DataSearchSetupField.Next() = 0;
+    end;
+
+    local procedure EmbedRecord(Payload: Text; RecRef: RecordRef; DataSearchSetupTable: Record "Data Search Setup (Table)")
+    var
+        Embedding: Record "GPT Embedding";
+        VectorJArray: JsonArray;
+        VectorText: Text;
+    begin
+        VectorJArray := GetAzureOpenAIEmbeddings(Payload);
+        VectorJArray.WriteTo(VectorText);
+
+        InsertEmbedding(Payload, RecRef, DataSearchSetupTable, Embedding, VectorText);
+        InsertEmbeddingVectors(Embedding.Id, VectorJArray);
     end;
 
 
@@ -69,23 +113,39 @@ codeunit 80100 "GPT Embedding Impl."
         Result := EmbeddingToken.AsArray();
     end;
 
-    procedure InsertToEmbeddingVector(Id: integer; VectorJArray: JsonArray)
+    local procedure InsertEmbedding(var Payload: Text; var RecRef: RecordRef; var DataSearchSetupTable: Record "Data Search Setup (Table)"; var Embedding: Record "GPT Embedding"; var VectorText: Text)
+    begin
+        Embedding.Init();
+        Embedding."Table No." := DataSearchSetupTable."Table No.";
+        Embedding."Table Subtype" := DataSearchSetupTable."Table Subtype";
+        Embedding."Table/Type ID" := DataSearchSetupTable."Table/Type ID";
+        Embedding.Payload := Payload;
+        Embedding.RecordId := RecRef.RecordId;
+        Embedding.Vector := CopyStr(VectorText, 1, MaxStrLen(Embedding.Vector));
+        Embedding.Insert(true);
+    end;
+
+
+    procedure InsertEmbeddingVectors(Id: integer; VectorJArray: JsonArray)
     var
-        i: integer;
         Value: Decimal;
         Vector: List of [Decimal];
-        EmbeddingVector: Record "GPT Embedding Vector";
     begin
         Vector := ConvertJsonArrayToListOfDecimals(VectorJArray);
 
         foreach Value in Vector do begin
-            i += 1;
-            EmbeddingVector.Init();
-            EmbeddingVector.Id := Id;
-            EmbeddingVector.VectorId := i;
-            EmbeddingVector.VectorValue := Value;
-            EmbeddingVector.Insert();
+            InsertEmbeddingVector(Id, Value);
         end;
+    end;
+
+    local procedure InsertEmbeddingVector(var Id: integer; var Value: Decimal)
+    var
+        EmbeddingVector: Record "GPT Embedding Vector";
+    begin
+        EmbeddingVector.Init();
+        EmbeddingVector.Id := Id;
+        EmbeddingVector.VectorValue := Value;
+        EmbeddingVector.Insert(true);
     end;
 
     procedure ConvertJsonArrayToListOfDecimals(EmbeddingArray: JsonArray) Result: List of [Decimal]

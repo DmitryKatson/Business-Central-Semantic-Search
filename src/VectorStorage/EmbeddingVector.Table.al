@@ -9,7 +9,7 @@ table 80101 "GPT Embedding Vector"
         }
         field(2; VectorId; Integer)
         {
-
+            AutoIncrement = true;
         }
         field(10; VectorValue; Decimal)
         {

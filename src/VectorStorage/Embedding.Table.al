@@ -6,18 +6,12 @@ table 80100 "GPT Embedding"
         {
             AutoIncrement = true;
         }
-        field(10; "RecordId"; RecordId)
-        {
-
-        }
-        field(11; Payload; Text[2048])
-        {
-
-        }
-        field(12; Vector; Text[100])
-        {
-
-        }
+        field(9; "Table No."; Integer) { }
+        field(10; "RecordId"; RecordId) { }
+        field(11; Payload; Text[2048]) { }
+        field(12; Vector; Text[100]) { }
+        field(20; "Table Subtype"; Integer) { }
+        field(21; "Table/Type ID"; Integer) { }
     }
 
     keys
