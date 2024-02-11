@@ -130,20 +130,23 @@ codeunit 80100 "GPT Embedding Impl."
     var
         Value: Decimal;
         Vector: List of [Decimal];
+        i: Integer;
     begin
         Vector := ConvertJsonArrayToListOfDecimals(VectorJArray);
 
         foreach Value in Vector do begin
-            InsertEmbeddingVector(Id, Value);
+            i += 1;
+            InsertEmbeddingVector(Id, i, Value);
         end;
     end;
 
-    local procedure InsertEmbeddingVector(var Id: integer; var Value: Decimal)
+    local procedure InsertEmbeddingVector(Id: integer; VectorId: Integer; Value: Decimal)
     var
         EmbeddingVector: Record "GPT Embedding Vector";
     begin
         EmbeddingVector.Init();
         EmbeddingVector.Id := Id;
+        EmbeddingVector.VectorId := VectorId;
         EmbeddingVector.VectorValue := Value;
         EmbeddingVector.Insert(true);
     end;
