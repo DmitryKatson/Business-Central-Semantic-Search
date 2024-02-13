@@ -1,12 +1,15 @@
 codeunit 80101 "GPT Semantic Search Impl."
 {
-    procedure SemanticSearch(var SemanticSearchResult: Record "GPT Semantic Search Result"; SearchText: Text; TableNoFilter: Text)
+    procedure SemanticSearch(var SemanticSearchResult: Record "GPT Semantic Search Result"; SearchText: Text; TableNoFilter: Text; MinimumCosineSimilarity: Decimal)
     var
         SearchTextVector: List of [Decimal];
         EmbeddingImpl: Codeunit "GPT Embedding Impl.";
     begin
         SearchTextVector := EmbeddingImpl.ConvertJsonArrayToListOfDecimals(EmbeddingImpl.GetAzureOpenAIEmbeddings(SearchText));
         CalculateCosineSimilarityForEmbeddings(SemanticSearchResult, SearchTextVector, TableNoFilter);
+        SemanticSearchResult.SetCurrentKey("Cosine Similarity");
+        SemanticSearchResult.Ascending(false);
+        SemanticSearchResult.SetFilter("Cosine Similarity", '>=' + Format(MinimumCosineSimilarity));
     end;
 
     procedure CalculateCosineSimilarityForEmbeddings(var SemanticSearchResult: Record "GPT Semantic Search Result"; SearchTextVector: List of [Decimal]; TableNoFilter: Text)

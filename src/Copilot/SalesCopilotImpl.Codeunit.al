@@ -175,7 +175,7 @@ codeunit 80102 "GPT Sales Copilot Impl."
         SemanticSearchResult: Record "GPT Semantic Search Result";
     begin
         SearchText := BuildSearchText(Description, Specification, UnitOfMeasureText);
-        SemanticSearchImpl.SemanticSearch(SemanticSearchResult, SearchText, StrSubstNo('%1|%2', Database::Item, Database::"Item Variant"));
+        SemanticSearchImpl.SemanticSearch(SemanticSearchResult, SearchText, StrSubstNo('%1|%2', Database::Item, Database::"Item Variant"), 0.8);
         if SemanticSearchResult.IsEmpty then
             exit;
 
