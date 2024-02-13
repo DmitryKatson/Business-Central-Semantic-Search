@@ -166,8 +166,15 @@ codeunit 80100 "GPT Embedding Impl."
     local procedure GetEndpoint(): Text
     var
         SemanticSearchSetup: Record "GPT Semantic Search Setup";
+        Url: Text;
     begin
-        exit(SemanticSearchSetup.GetEndpoint())
+        Url := SemanticSearchSetup.GetEmbeddingEndpoint();
+        if CopyStr(Url, StrLen(Url), 1) = '/' then
+            Url := CopyStr(Url, 1, StrLen(Url) - 1);
+
+        Url := Url + '/openai/deployments/' + SemanticSearchSetup.GetEmbeddingDeployment() + '/embeddings?api-version=2023-03-15-preview';
+
+        exit(Url)
     end;
 
 

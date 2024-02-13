@@ -12,10 +12,14 @@ table 80102 "GPT Semantic Search Setup"
 
         }
 
-        field(2; Endpoint; Text[250])
+        field(2; "AOAI Embedding Endpoint"; Text[250])
         {
             DataClassification = CustomerContent;
             Caption = 'Endpoint';
+        }
+        field(3; "AOAI Embedding Deployment"; Text[250])
+        {
+            Caption = 'Deployment';
         }
 
         field(4; "Secret Key"; Guid)
@@ -23,6 +27,17 @@ table 80102 "GPT Semantic Search Setup"
             DataClassification = CustomerContent;
             Caption = 'Secret';
         }
+
+        field(10; "AOAI Chat Endpoint"; Text[250])
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Endpoint';
+        }
+        field(11; "AOAI Chat Deployment"; Text[250])
+        {
+            Caption = 'Deployment';
+        }
+
     }
 
     keys
@@ -33,12 +48,36 @@ table 80102 "GPT Semantic Search Setup"
         }
     }
 
-    procedure GetEndpoint() Endpoint: Text[250]
+    procedure GetEmbeddingEndpoint() Endpoint: Text[250]
     var
         Rec: Record "GPT Semantic Search Setup";
     begin
         Rec.Get();
-        exit(Rec.Endpoint);
+        exit(Rec."AOAI Embedding Endpoint");
+    end;
+
+    procedure GetEmbeddingDeployment() Deployment: Text[250]
+    var
+        Rec: Record "GPT Semantic Search Setup";
+    begin
+        Rec.Get();
+        exit(Rec."AOAI Embedding Deployment");
+    end;
+
+    procedure GetChatEndpoint() Endpoint: Text[250]
+    var
+        Rec: Record "GPT Semantic Search Setup";
+    begin
+        Rec.Get();
+        exit(Rec."AOAI Chat Endpoint");
+    end;
+
+    procedure GetChatDeployment() Deployment: Text[250]
+    var
+        Rec: Record "GPT Semantic Search Setup";
+    begin
+        Rec.Get();
+        exit(Rec."AOAI Chat Deployment");
     end;
 
 

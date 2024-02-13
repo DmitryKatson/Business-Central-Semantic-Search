@@ -16,10 +16,28 @@ page 80100 "GPT Semantic Search Setup"
         {
             group(Embedding)
             {
-                field(Endpoint; Rec.Endpoint)
+                field("Embedding Endpoint"; Rec."AOAI Embedding Endpoint")
                 {
                     ApplicationArea = All;
                 }
+                field("Embedding Deployment"; Rec."AOAI Embedding Deployment")
+                {
+                    ApplicationArea = All;
+                }
+            }
+            group(Chat)
+            {
+                field("AOAI Endpoint"; Rec."AOAI Chat Endpoint")
+                {
+                    ApplicationArea = All;
+                }
+                field("AOAI Deployment"; Rec."AOAI Chat Deployment")
+                {
+                    ApplicationArea = All;
+                }
+            }
+            group(Secret)
+            {
                 field(SecretKey; SecretKey)
                 {
                     ApplicationArea = Basic, Suite;
