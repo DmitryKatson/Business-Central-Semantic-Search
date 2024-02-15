@@ -1,7 +1,7 @@
 codeunit 80100 "GPT Embedding Impl."
 {
     var
-        ConfirmGenerateEmbeddingsQtn: Label 'This action will delete all existing embeddings and generate new. Do you want to continue?';
+        ConfirmGenerateEmbeddingsQtn: Label 'Do you want to generate embeddings?';
 
     procedure DeleteEmbeddingVector(Id: integer)
     var
@@ -16,7 +16,6 @@ codeunit 80100 "GPT Embedding Impl."
         DataSearchSetupTable: Record "Data Search Setup (Table)";
         RoleCenterID: Integer;
         Payload: text;
-        Embedding: Record "GPT Embedding";
         i: Integer;
         VectorJArray: JsonArray;
         VectorText: Text;
@@ -24,8 +23,6 @@ codeunit 80100 "GPT Embedding Impl."
     begin
         if not ConfirmMgtCodeunit.GetResponse(ConfirmGenerateEmbeddingsQtn, false) then
             exit;
-
-        Embedding.DeleteAll(true);
 
         RoleCenterID := DataSearchSetupTable.GetRoleCenterID(); //TODO: implement without role center dependency
         DataSearchSetupTable.Setrange("Role Center ID", RoleCenterID);
@@ -38,19 +35,13 @@ codeunit 80100 "GPT Embedding Impl."
 
     local procedure EmbedTable(DataSearchSetupTable: Record "Data Search Setup (Table)")
     var
-        Payload: TextBuilder;
         RecRef: RecordRef;
         FldRef: FieldRef;
     begin
         RecRef.Open(DataSearchSetupTable."Table No.");
         if RecRef.FindSet() then
             repeat
-                Clear(Payload);
-                DataSearchSetupTable.CalcFields("Table Caption");
-                Payload.Append(DataSearchSetupTable."Table Caption");
-                Payload.AppendLine();
-                GenerateRecordPayload(Payload, RecRef);
-                EmbedRecord(Payload.ToText(), RecRef, DataSearchSetupTable);
+                GeneratePayloadAndEmbedRecord(DataSearchSetupTable, RecRef);
             until RecRef.Next() = 0;
     end;
 
@@ -190,5 +181,50 @@ codeunit 80100 "GPT Embedding Impl."
     begin
         SemanticSearchSetup.Get();
         exit(SemanticSearchSetup.GetSecretKeyFromIsolatedStorage())
+    end;
+
+    local procedure GeneratePayloadAndEmbedRecord(var DataSearchSetupTable: Record "Data Search Setup (Table)"; var RecRef: RecordRef)
+    var
+        Payload: TextBuilder;
+    begin
+        if CheckIfRecordExistAndWasNotChangedSinceLastEmbedding(RecRef) then
+            exit;
+
+        DataSearchSetupTable.CalcFields("Table Caption");
+        Payload.Append(DataSearchSetupTable."Table Caption");
+        Payload.AppendLine();
+        GenerateRecordPayload(Payload, RecRef);
+        EmbedRecord(Payload.ToText(), RecRef, DataSearchSetupTable);
+    end;
+
+    local procedure CheckIfRecordExistAndWasNotChangedSinceLastEmbedding(RecRef: RecordRef) Result: Boolean
+    var
+        Embedding: Record "GPT Embedding";
+        ModifiedAt: DateTime;
+    begin
+        Embedding.SetRange("Table No.", RecRef.Number);
+        Embedding.SetRange(RecordId, RecRef.RecordId);
+        if Embedding.IsEmpty() then
+            exit(false);
+
+        Embedding.FindFirst();
+        ModifiedAt := RecRef.Field(RecRef.SystemModifiedAtNo).Value;
+        if ModifiedAt <= Embedding.SystemCreatedAt then
+            exit(true);
+
+        exit(false);
+    end;
+
+    internal procedure ClearEmbeddings()
+    var
+        Embedding: Record "GPT Embedding";
+        EmbeddingVector: Record "GPT Embedding Vector";
+        ConfirmMgtCodeunit: Codeunit "Confirm Management";
+    begin
+        if not ConfirmMgtCodeunit.GetResponse('Do you want to clear all embeddings?', false) then
+            exit;
+
+        Embedding.DeleteAll();
+        EmbeddingVector.DeleteAll();
     end;
 }

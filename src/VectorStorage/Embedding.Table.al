@@ -50,7 +50,7 @@ table 80100 "GPT Embedding"
         Clear(Rec.Vector);
         Rec.Vector.CreateOutStream(OutStream);
         OutStream.WriteText(ConvertedText);
-        Rec.Modify(true);
+        Rec.Modify();
     end;
 
     procedure LoadVectorText() VectorText: Text

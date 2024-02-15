@@ -78,6 +78,20 @@ page 80101 "GPT Embeddings"
                     EmbeddingsImpl.GenerateEmbeddings();
                 end;
             }
+            action("Clear")
+            {
+                ApplicationArea = All;
+                Image = Delete;
+                Caption = 'Clear';
+
+                trigger OnAction()
+                var
+                    EmbeddingsImpl: Codeunit "GPT Embedding Impl.";
+                begin
+                    EmbeddingsImpl.ClearEmbeddings();
+                end;
+
+            }
         }
         area(Navigation)
         {
