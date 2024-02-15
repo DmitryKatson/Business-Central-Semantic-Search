@@ -30,7 +30,7 @@ page 80101 "GPT Embeddings"
                 {
                     ApplicationArea = All;
                 }
-                field(Vector; Rec.Vector)
+                field(Vector; VectorText)
                 {
                     ApplicationArea = All;
                 }
@@ -96,4 +96,12 @@ page 80101 "GPT Embeddings"
             }
         }
     }
+
+    var
+        VectorText: Text;
+
+    trigger OnAfterGetRecord()
+    begin
+        VectorText := Rec.LoadVectorText();
+    end;
 }

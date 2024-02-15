@@ -9,7 +9,7 @@ table 80100 "GPT Embedding"
         field(9; "Table No."; Integer) { }
         field(10; "RecordId"; RecordId) { }
         field(11; Payload; Text[2048]) { }
-        field(12; Vector; Text[100]) { }
+        field(12; Vector; Blob) { }
         field(20; "Table Subtype"; Integer) { }
         field(21; "Table/Type ID"; Integer) { }
     }
@@ -40,4 +40,28 @@ table 80100 "GPT Embedding"
         EmbeddingImpl.DeleteEmbeddingVector(Rec.Id);
     end;
 
+    procedure SaveVectorText(VectorText: Text)
+    var
+        OutStream: OutStream;
+        Base64Convert: Codeunit "Base64 Convert";
+        ConvertedText: Text;
+    begin
+        ConvertedText := Base64Convert.ToBase64(VectorText);
+        Clear(Rec.Vector);
+        Rec.Vector.CreateOutStream(OutStream);
+        OutStream.WriteText(ConvertedText);
+        Rec.Modify(true);
+    end;
+
+    procedure LoadVectorText() VectorText: Text
+    var
+        InStream: InStream;
+        Base64Convert: Codeunit "Base64 Convert";
+        ConvertedText: Text;
+    begin
+        Rec.CalcFields(Vector);
+        Rec.Vector.CreateInStream(InStream);
+        InStream.ReadText(ConvertedText);
+        VectorText := Base64Convert.FromBase64(ConvertedText);
+    end;
 }

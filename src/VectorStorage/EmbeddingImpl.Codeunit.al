@@ -1,5 +1,7 @@
 codeunit 80100 "GPT Embedding Impl."
 {
+    var
+        ConfirmGenerateEmbeddingsQtn: Label 'This action will delete all existing embeddings and generate new. Do you want to continue?';
 
     procedure DeleteEmbeddingVector(Id: integer)
     var
@@ -18,7 +20,11 @@ codeunit 80100 "GPT Embedding Impl."
         i: Integer;
         VectorJArray: JsonArray;
         VectorText: Text;
+        ConfirmMgtCodeunit: Codeunit "Confirm Management";
     begin
+        if not ConfirmMgtCodeunit.GetResponse(ConfirmGenerateEmbeddingsQtn, false) then
+            exit;
+
         Embedding.DeleteAll(true);
 
         RoleCenterID := DataSearchSetupTable.GetRoleCenterID(); //TODO: implement without role center dependency
@@ -121,10 +127,9 @@ codeunit 80100 "GPT Embedding Impl."
         Embedding."Table/Type ID" := DataSearchSetupTable."Table/Type ID";
         Embedding.Payload := Payload;
         Embedding.RecordId := RecRef.RecordId;
-        Embedding.Vector := CopyStr(VectorText, 1, MaxStrLen(Embedding.Vector));
         Embedding.Insert(true);
+        Embedding.SaveVectorText(VectorText);
     end;
-
 
     procedure InsertEmbeddingVectors(Id: integer; VectorJArray: JsonArray)
     var
