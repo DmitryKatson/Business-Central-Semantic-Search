@@ -9,7 +9,10 @@ table 80100 "GPT Embedding"
         field(9; "Table No."; Integer) { }
         field(10; "RecordId"; RecordId) { }
         field(11; Payload; Text[2048]) { }
-        field(12; Vector; Blob) { }
+        field(12; Vector; Blob)
+        {
+            Compressed = false;
+        }
         field(20; "Table Subtype"; Integer) { }
         field(21; "Table/Type ID"; Integer) { }
     }
