@@ -2,6 +2,8 @@ codeunit 80100 "GPT Embedding Impl."
 {
     var
         ConfirmGenerateEmbeddingsQtn: Label 'Do you want to generate embeddings?';
+        DialogGenerateEmbeddings: Label 'Generating embeddings...';
+        MsgEmbeddingsGenerated: Label 'Embeddings generated successfully.';
 
     procedure DeleteEmbeddingVector(Id: integer)
     var
@@ -20,10 +22,12 @@ codeunit 80100 "GPT Embedding Impl."
         VectorJArray: JsonArray;
         VectorText: Text;
         ConfirmMgtCodeunit: Codeunit "Confirm Management";
+        DW: Dialog;
     begin
         if not ConfirmMgtCodeunit.GetResponse(ConfirmGenerateEmbeddingsQtn, false) then
             exit;
 
+        DW.Open(DialogGenerateEmbeddings);
         RoleCenterID := DataSearchSetupTable.GetRoleCenterID(); //TODO: implement without role center dependency
         DataSearchSetupTable.Setrange("Role Center ID", RoleCenterID);
 
@@ -31,6 +35,8 @@ codeunit 80100 "GPT Embedding Impl."
             repeat
                 EmbedTable(DataSearchSetupTable);
             until DataSearchSetupTable.Next() = 0;
+        DW.Close();
+        Message(MsgEmbeddingsGenerated);
     end;
 
     local procedure EmbedTable(DataSearchSetupTable: Record "Data Search Setup (Table)")
@@ -220,11 +226,14 @@ codeunit 80100 "GPT Embedding Impl."
         Embedding: Record "GPT Embedding";
         EmbeddingVector: Record "GPT Embedding Vector";
         ConfirmMgtCodeunit: Codeunit "Confirm Management";
+        DW: Dialog;
     begin
         if not ConfirmMgtCodeunit.GetResponse('Do you want to clear all embeddings?', false) then
             exit;
-
+        DW.Open('Clearing embeddings...');
         Embedding.DeleteAll();
         EmbeddingVector.DeleteAll();
+        DW.Close();
+        Message('Embedding cleared');
     end;
 }
