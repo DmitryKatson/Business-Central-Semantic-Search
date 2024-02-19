@@ -32,7 +32,7 @@ codeunit 80102 "GPT Sales Copilot Impl."
                 SalesLine.Insert(true);
             until SalesLineGenerated.Next() = 0;
 
-        exit(SalesHeaderGenerated.SystemId);
+        exit(SalesHeader.SystemId);
     end;
 
     procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; ContactEmail: text[80])
