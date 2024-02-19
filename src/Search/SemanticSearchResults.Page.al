@@ -31,8 +31,6 @@ page 80104 "GPT Semantic Search Results"
     begin
         Rec.DeleteAll();
 
-        SemanticSearchResult.Reset();
-        SemanticSearchResult.SetFilter("Cosine Similarity", StrSubstNo('>=%1', 0.8));
         if SemanticSearchResult.FindSet() then
             repeat
                 Rec := SemanticSearchResult;

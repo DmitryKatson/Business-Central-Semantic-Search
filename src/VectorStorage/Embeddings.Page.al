@@ -64,7 +64,7 @@ page 80101 "GPT Embeddings"
                 Image = Sparkle;
                 Caption = 'Semantic Search';
 
-                RunObject = page "GPT Semantic Search";
+                RunObject = page "GPT Semantic Data Search";
             }
             action(Generate)
             {
