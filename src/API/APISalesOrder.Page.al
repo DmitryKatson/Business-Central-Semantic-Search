@@ -40,10 +40,13 @@ page 80105 "GPT API - Sales Order"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     var
         SalesCopilot: Codeunit "GPT Sales Copilot Impl.";
+        SalesHeaderGenerated: Record "Sales Header" temporary;
+        SalesLineGenerated: Record "Sales Line" temporary;
         SalesOrderSystemId: Guid;
     begin
         CheckFieldsSpecified();
-        SalesOrderSystemId := SalesCopilot.CreateSalesOrder(Rec."Sell-to E-Mail", LinesDescription);
+        SalesCopilot.GenerateSalesOrder(Rec."Sell-to E-Mail", LinesDescription, SalesHeaderGenerated, SalesLineGenerated);
+        SalesOrderSystemId := SalesCopilot.SaveGeneratedSalesOrder(SalesHeaderGenerated, SalesLineGenerated);
         Rec.Id := SalesOrderSystemId;
         exit(false);
     end;

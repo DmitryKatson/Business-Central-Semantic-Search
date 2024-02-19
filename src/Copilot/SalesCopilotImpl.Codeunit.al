@@ -1,19 +1,38 @@
 codeunit 80102 "GPT Sales Copilot Impl."
 {
-    procedure CreateSalesOrder(ContactEmail: text[80]; LinesDescription: text): Guid
-    var
-        SalesHeader: Record "Sales Header";
+    procedure GenerateSalesOrder(ContactEmail: text[80]; LinesDescription: text; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         if ContactEmail = '' then
             exit;
         if LinesDescription = '' then
             exit;
 
-
         CreateSalesHeader(SalesHeader, ContactEmail);
-        CreateSalesLines(SalesHeader, LinesDescription);
+        CreateSalesLines(SalesHeader, SalesLine, LinesDescription);
+    end;
 
-        exit(SalesHeader.SystemId);
+    procedure SaveGeneratedSalesOrder(var SalesHeaderGenerated: Record "Sales Header"; var SalesLineGenerated: Record "Sales Line"): Guid
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        SalesHeader := SalesHeaderGenerated;
+        SalesHeader.Insert(true);
+
+        if SalesLineGenerated.FindSet() then
+            repeat
+                SalesLine.Init();
+                SalesLine.Validate("Document Type", SalesLineGenerated."Document Type");
+                SalesLine.Validate("Document No.", SalesLineGenerated."Document No.");
+                SalesLine.Validate("Line No.", SalesLineGenerated."Line No.");
+                SalesLine.Validate("Type", SalesLineGenerated.Type);
+                SalesLine.Validate("No.", SalesLineGenerated."No.");
+                SalesLine.Validate("Variant Code", SalesLineGenerated."Variant Code");
+                SalesLine.Validate("Quantity", SalesLineGenerated.Quantity);
+                SalesLine.Insert(true);
+            until SalesLineGenerated.Next() = 0;
+
+        exit(SalesHeaderGenerated.SystemId);
     end;
 
     procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; ContactEmail: text[80])
@@ -65,7 +84,7 @@ codeunit 80102 "GPT Sales Copilot Impl."
     end;
 
 
-    local procedure CreateSalesLines(var SalesHeader: Record "Sales Header"; LinesDescription: text)
+    local procedure CreateSalesLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LinesDescription: text)
     var
         SalesLinesJsonArray: JsonArray;
         SalesLineJTok: JsonToken;
@@ -77,7 +96,7 @@ codeunit 80102 "GPT Sales Copilot Impl."
 
         for i := 0 to SalesLinesJsonArray.Count() - 1 do begin
             SalesLinesJsonArray.Get(i, SalesLineJTok);
-            CreateSalesLine(SalesHeader, SalesLineJTok, i);
+            CreateSalesLine(SalesHeader, SalesLine, SalesLineJTok, i);
         end;
     end;
 
@@ -134,9 +153,8 @@ codeunit 80102 "GPT Sales Copilot Impl."
         JsonArray.ReadFrom(Completion);
     end;
 
-    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; SalesLineJTok: JsonToken; i: Integer)
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLineJTok: JsonToken; i: Integer)
     var
-        SalesLine: Record "Sales Line";
         Description, Specification, UnitOfMeasureText : Text;
         Quantity: Decimal;
         ItemNo: Code[20];
@@ -216,17 +234,26 @@ codeunit 80102 "GPT Sales Copilot Impl."
         end;
     end;
 
-    local procedure InsertSalesLine(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; ItemNo: Code[20]; VariantCode: Code[20]; Quantity: Decimal; i: Integer)
+    local procedure InsertSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; VariantCode: Code[20]; Quantity: Decimal; i: Integer)
     begin
         SalesLine.Init();
-        SalesLine.Validate("Document Type", SalesHeader."Document Type");
-        SalesLine.Validate("Document No.", SalesHeader."No.");
-        SalesLine.Validate("Line No.", (i + 1) * 10000);
-        SalesLine.Validate("Type", SalesLine.Type::"Item");
-        SalesLine.Validate("No.", ItemNo);
-        SalesLine.Validate("Variant Code", VariantCode);
-        SalesLine.Validate("Quantity", Quantity);
-        SalesLine.Insert(true);
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := (i + 1) * 10000;
+        SalesLine.Type := SalesLine.Type::"Item";
+        SalesLine."No." := ItemNo;
+        SalesLine.Description := GetItemDescription(ItemNo);
+        SalesLine."Variant Code" := VariantCode;
+        SalesLine.Quantity := Quantity;
+        SalesLine.Insert();
+    end;
+
+    local procedure GetItemDescription(ItemNo: Code[20]): Text
+    var
+        Item: Record "Item";
+    begin
+        Item.Get(ItemNo);
+        exit(Item.Description);
     end;
 
     local procedure GetEndpoint(): Text
