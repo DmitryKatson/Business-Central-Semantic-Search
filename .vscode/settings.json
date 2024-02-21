@@ -4,5 +4,17 @@
     "CRS.FileNamePatternPageCustomizations": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
     "CRS.RemovePrefixFromFilename": true,
     "CRS.ObjectNamePrefix": "GPT ",
-    "CRS.OnSaveAlFileAction": "Rename"
+    "CRS.OnSaveAlFileAction": "Rename",
+    "al.assemblyProbingPaths": [
+        "./.netpackages",
+        "C:/Windows/Assembly",
+        "C:/Windows/Microsoft.NET/assembly",        
+        ".\\.netpackages",
+        "C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App\\6.0.27",
+        "C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\6.0.27",
+        "C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App\\6.0.27",
+        "Microsoft.Data.SqlClient\\4.0.2\\lib\\netstandard2.1",
+        "C:\\Program Files\\Microsoft Dynamics 365 Business Central\\230\\Service"
+
+    ]
 }

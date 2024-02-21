@@ -2,7 +2,7 @@
   "id": "3dc28c06-156a-4c55-a36c-8c57f6b6ddf1",
   "name": "BC Semantic Search",
   "publisher": "Katson.com",
-  "version": "1.0.0.1",
+  "version": "1.0.0.2",
   "brief": "",
   "description": "",
   "privacyStatement": "",
@@ -35,5 +35,6 @@
   "runtime": "12.1",
   "features": [
     "NoImplicitWith"
-  ]
+  ],
+  "target": "OnPrem"
 }

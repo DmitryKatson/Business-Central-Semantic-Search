@@ -54,6 +54,19 @@ page 80108 "GPT Semantic Data Search"
                     DoSemanticSearch();
                 end;
             }
+            action(SearchSQL)
+            {
+                ApplicationArea = All;
+                Caption = 'Start semantic search (SQL)';
+                ToolTip = 'Starts the semantic search (SQL Similarity).';
+                Image = Find;
+                Enabled = SearchText <> '';
+
+                trigger OnAction()
+                begin
+                    DoSemanticSearchSQL();
+                end;
+            }
         }
         area(Promoted)
         {
@@ -63,6 +76,9 @@ page 80108 "GPT Semantic Data Search"
 
                 actionref(Contact_Promoted;
                 Search)
+                {
+                }
+                actionref(SearchSQLRef; SearchSQL)
                 {
                 }
             }
@@ -79,6 +95,15 @@ page 80108 "GPT Semantic Data Search"
         SemanticSearchResult: Record "GPT Semantic Search Result";
     begin
         SemanticSearchImpl.SemanticSearch(SemanticSearchResult, SearchText, Format(Database::Item), GetSimilarityLevel());
+        CurrPage.SemanticSearchResults.Page.Load(SemanticSearchResult);
+    end;
+
+    local procedure DoSemanticSearchSQL()
+    var
+        SemanticSearchImpl: Codeunit "GPT Semantic Search Impl.";
+        SemanticSearchResult: Record "GPT Semantic Search Result";
+    begin
+        SemanticSearchImpl.SemanticSearchSQL(SemanticSearchResult, SearchText, Format(Database::Item), GetSimilarityLevel());
         CurrPage.SemanticSearchResults.Page.Load(SemanticSearchResult);
     end;
 
