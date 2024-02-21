@@ -20,11 +20,12 @@ codeunit 80101 "GPT Semantic Search Impl."
         result, vectorText : Text;
     begin
         EmbeddingImpl.GetAzureOpenAIEmbeddings(SearchText).WriteTo(vectorText);
-        result := GPTSimilarity.PerformSQLSemanticSearch(vectorText, MinimumCosineSimilarity, 20);   //Number of records is here fixed to 20
+        result := GPTSimilarity.PerformSQLSemanticSearch(vectorText, MinimumCosineSimilarity, 50);   //Number of records is here fixed (we can pass it as a parameter from search)
 
         SaveSQLSemanticSearchResult(result, SemanticSearchResult);
 
-        SemanticSearchResult.SetFilter("Table No.", TableNoFilter);
+        if TableNoFilter <> '' then
+            SemanticSearchResult.SetFilter("Table No.", TableNoFilter);
         SemanticSearchResult.SetCurrentKey("Cosine Similarity");
         SemanticSearchResult.Ascending(false);
         SemanticSearchResult.SetFilter("Cosine Similarity", '>=' + Format(MinimumCosineSimilarity));
@@ -78,7 +79,6 @@ codeunit 80101 "GPT Semantic Search Impl."
         SemanticSearchResult.Reset();
         SemanticSearchResult.DeleteAll();
         ResultArray.ReadFrom(SimilarityResult);
-
 
         JsonManagement.InitializeCollection(SimilarityResult);
         for i := 0 to JsonManagement.GetCollectionCount() - 1 do begin

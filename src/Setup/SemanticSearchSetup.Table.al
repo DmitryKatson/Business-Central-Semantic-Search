@@ -37,7 +37,10 @@ table 80102 "GPT Semantic Search Setup"
         {
             Caption = 'Deployment';
         }
-
+        field(12; "SQL Database Connection"; Text[1024])
+        {
+            Caption = 'SQL Database Connection String';
+        }
     }
 
     keys

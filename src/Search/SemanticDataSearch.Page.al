@@ -89,22 +89,54 @@ page 80108 "GPT Semantic Data Search"
         SearchText: Text;
         SimilarityLevel: Option Close,Middle,Far;
 
+    //Search only on Item table
+    // local procedure DoSemanticSearch()
+    // var
+    //     SemanticSearchImpl: Codeunit "GPT Semantic Search Impl.";
+    //     SemanticSearchResult: Record "GPT Semantic Search Result";
+    // begin
+    //     SemanticSearchImpl.SemanticSearch(SemanticSearchResult, SearchText, Format(Database::Item), GetSimilarityLevel());
+    //     CurrPage.SemanticSearchResults.Page.Load(SemanticSearchResult);
+    // end;
+
+    // local procedure DoSemanticSearchSQL()
+    // var
+    //     SemanticSearchImpl: Codeunit "GPT Semantic Search Impl.";
+    //     SemanticSearchResult: Record "GPT Semantic Search Result";
+    // begin
+    //     SemanticSearchImpl.SemanticSearchSQL(SemanticSearchResult, SearchText, Format(Database::Item), GetSimilarityLevel());
+    //     CurrPage.SemanticSearchResults.Page.Load(SemanticSearchResult);
+    // end;
+
+    //Search on all tables
     local procedure DoSemanticSearch()
     var
         SemanticSearchImpl: Codeunit "GPT Semantic Search Impl.";
         SemanticSearchResult: Record "GPT Semantic Search Result";
+        startTime, endTime : DateTime;
+        elapsed: Duration;
     begin
-        SemanticSearchImpl.SemanticSearch(SemanticSearchResult, SearchText, Format(Database::Item), GetSimilarityLevel());
+        startTime := CurrentDateTime;
+        SemanticSearchImpl.SemanticSearch(SemanticSearchResult, SearchText, '', GetSimilarityLevel());
+        endTime := CurrentDateTime;
+        elapsed := endtime - startTime;
         CurrPage.SemanticSearchResults.Page.Load(SemanticSearchResult);
+        Message('Search time: ' + Format(elapsed));
     end;
 
     local procedure DoSemanticSearchSQL()
     var
         SemanticSearchImpl: Codeunit "GPT Semantic Search Impl.";
         SemanticSearchResult: Record "GPT Semantic Search Result";
+        startTime, endTime : DateTime;
+        elapsed: Duration;
     begin
-        SemanticSearchImpl.SemanticSearchSQL(SemanticSearchResult, SearchText, Format(Database::Item), GetSimilarityLevel());
+        startTime := CurrentDateTime;
+        SemanticSearchImpl.SemanticSearchSQL(SemanticSearchResult, SearchText, '', GetSimilarityLevel());
+        endTime := CurrentDateTime;
+        elapsed := endtime - startTime;
         CurrPage.SemanticSearchResults.Page.Load(SemanticSearchResult);
+        Message('Search (SQL) time: ' + Format(elapsed));
     end;
 
     local procedure GetSimilarityLevel(): Decimal

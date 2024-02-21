@@ -5,7 +5,15 @@ codeunit 80107 "GPT SQL Similarity"
         SQLSemanticSearch: DotNet SQLSemanticSearch;
         SearchResult: Text;
     begin
-        SearchResult := SQLSemanticSearch.PerformSemanticSearch(Vector, MinimumScore, NumberOfRecords);
+        SearchResult := SQLSemanticSearch.PerformSemanticSearch(GetSqlConnectionString(), Vector, MinimumScore, NumberOfRecords);
         exit(SearchResult);
+    end;
+
+    local procedure GetSqlConnectionString(): Text
+    var
+        GPTSemanticSearchSetup: Record "GPT Semantic Search Setup";
+    begin
+        GPTSemanticSearchSetup.Get();
+        exit(GPTSemanticSearchSetup."SQL Database Connection");
     end;
 }
