@@ -1,15 +1,15 @@
 page 80105 "GPT API - Sales Order"
 {
-    PageType = API;
-    APIPublisher = 'Katson';
     APIGroup = 'Copilot';
+    APIPublisher = 'Katson';
     APIVersion = 'v1.0';
+    DelayedInsert = true;
     EntityName = 'salesOrder';
     EntitySetName = 'salesOrders';
-    SourceTable = "Sales Order Entity Buffer";
-    DelayedInsert = true;
-    ODataKeyFields = Id;
     Extensible = false;
+    ODataKeyFields = Id;
+    PageType = API;
+    SourceTable = "Sales Order Entity Buffer";
 
     layout
     {
@@ -29,23 +29,28 @@ page 80105 "GPT API - Sales Order"
                 {
 
                 }
+                field(salesOrderNo; Rec."No.")
+                {
+
+                }
             }
         }
     }
 
     var
-        LinesDescription: Text;
         FieldIsRequiredLbl: Label '%1 is required';
+        LinesDescription: Text;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     var
-        SalesCopilot: Codeunit "GPT Sales Copilot Impl.";
         SalesHeaderGenerated: Record "Sales Header" temporary;
         SalesLineGenerated: Record "Sales Line" temporary;
+        SalesCopilot: Codeunit "GPT Sales Copilot Impl.";
     begin
         CheckFieldsSpecified();
         SalesCopilot.GenerateSalesOrder(Rec."Sell-to E-Mail", LinesDescription, SalesHeaderGenerated, SalesLineGenerated);
         Rec.Id := SalesCopilot.SaveGeneratedSalesOrder(SalesHeaderGenerated, SalesLineGenerated);
+        Rec."No." := SalesHeaderGenerated."No.";
         exit(false);
     end;
 
