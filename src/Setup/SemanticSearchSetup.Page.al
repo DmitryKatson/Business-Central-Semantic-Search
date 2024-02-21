@@ -51,6 +51,16 @@ page 80100 "GPT Semantic Search Setup"
                     end;
                 }
             }
+            group(SQLConnection)
+            {
+                Caption = 'SQL Database Connection String';
+                field("SQL Database Connection"; Rec."SQL Database Connection")
+                {
+                    ApplicationArea = Basic, Suite;
+                    NotBlank = true;
+                    ShowMandatory = true;
+                }
+            }
         }
     }
 
