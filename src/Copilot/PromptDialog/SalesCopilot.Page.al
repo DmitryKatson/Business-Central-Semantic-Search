@@ -11,11 +11,19 @@ page 80106 "GPT Sales Copilot"
     {
         area(Prompt)
         {
-            field(CustomerEmail; CustomerEmail)
+            field(Contact; CustomerEmail)
             {
                 ApplicationArea = All;
                 Caption = 'Customer Email';
-                Editable = true;
+                trigger OnLookup(var Text: Text): Boolean
+                var
+                    Contact: Record Contact;
+                begin
+                    Contact.SetRange("Contact Business Relation", "Contact Business Relation"::Customer);
+                    if Page.RunModal(0, Contact) = Action::LookupOK then
+                        CustomerEmail := Contact."E-Mail";
+                end;
+
                 trigger OnValidate()
                 begin
                 end;
